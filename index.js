@@ -25,7 +25,7 @@ async function selectFile(files) {
 }
 
 async function copyFile(file) {
-  const sourcePath = path.join(__dirname, 'template-files', file);
+  const sourcePath = path.resolve(__dirname, 'template-files', file);
   const destinationPath = path.join(process.cwd(), file);
 
   try {
