@@ -1,3 +1,4 @@
+# Created using @tscircuit/plop (npm install -g @tscircuit/plop)
 name: NPM Test
 
 on:
@@ -9,7 +10,7 @@ on:
       - main
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
 
     steps:
@@ -23,6 +24,10 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Build
+        run: |
+          npm run build || true
 
       - name: Run tests
         run: npm run test

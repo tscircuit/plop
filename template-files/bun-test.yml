@@ -1,3 +1,4 @@
+# Created using @tscircuit/plop (npm install -g @tscircuit/plop)
 name: Bun Test
 
 on:
