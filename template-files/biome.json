@@ -30,6 +30,7 @@
       },
       "style": {
         "noNonNullAssertion": "off",
+        "useNumberNamespace": "off",
         "useFilenamingConvention": {
           "level": "error",
           "options": {
