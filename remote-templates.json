@@ -1,0 +1,16 @@
+{
+  "templates": [
+    {
+      "url": "https://raw.githubusercontent.com/tscircuit/circuit-json/refs/heads/main/docs/SCHEMATIC_COMPONENT_OVERVIEW.md",
+      "filename": "CIRCUIT_JSON_SCHEMATIC_OVERVIEW.md"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/tscircuit/circuit-json/refs/heads/main/docs/PCB_COMPONENT_OVERVIEW.md",
+      "filename": "CIRCUIT_JSON_PCB_OVERVIEW.md"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/tscircuit/props/refs/heads/main/generated/PROPS_OVERVIEW.md",
+      "filename": "TSCIRCUIT_REACT_PROPS_OVERVIEW.md"
+    }
+  ]
+}

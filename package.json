@@ -15,5 +15,8 @@
   "description": "",
   "dependencies": {
     "prompts": "^2.4.2"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4"
   }
 }
