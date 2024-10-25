@@ -2,6 +2,8 @@
 const fs = require('fs').promises;
 const path = require('path');
 const prompts = require('prompts');
+const { execSync } = require('child_process');
+const packageJson = require('./package.json');
 
 async function getTemplateFiles() {
   try {
@@ -62,7 +64,43 @@ async function copyFile(template) {
   }
 }
 
+async function checkLatestVersion() {
+  try {
+    const response = await fetch('https://registry.npmjs.org/@tscircuit/plop');
+    const npmData = await response.json();
+    return npmData['dist-tags'].latest;
+  } catch (error) {
+    throw new Error(`Failed to check latest version: ${error.message}`);
+  }
+}
+
+async function checkForUpdates() {
+  try {
+    const latestVersion = await checkLatestVersion();
+    const currentVersion = packageJson.version;
+    
+    if (latestVersion !== currentVersion) {
+      const shouldUpdate = await prompts({
+        type: 'confirm',
+        name: 'value',
+        message: `A new version of @tscircuit/plop is available (${latestVersion}). Would you like to update?`,
+        initial: true
+      });
+
+      if (shouldUpdate.value) {
+        console.log('Updating...');
+        execSync('npm install -g @tscircuit/plop', { stdio: 'inherit' });
+        console.log('Update complete! Please run the command again.');
+        process.exit(0);
+      }
+    }
+  } catch (error) {
+    console.warn('Unable to check for updates:', error.message);
+  }
+}
+
 async function main() {
+  await checkForUpdates();
   const files = await getTemplateFiles();
   const selectedFile = await selectFile(files);
 
