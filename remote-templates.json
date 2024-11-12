@@ -9,6 +9,10 @@
       "filename": "CIRCUIT_JSON_PCB_OVERVIEW.md"
     },
     {
+      "url": "https://raw.githubusercontent.com/tscircuit/circuit-json/refs/heads/main/docs/SOURCE_COMPONENT_OVERVIEW.md",
+      "filename": "CIRCUIT_JSON_SOURCE_COMPONENT_OVERVIEW.md"
+    },
+    {
       "url": "https://raw.githubusercontent.com/tscircuit/props/refs/heads/main/generated/PROPS_OVERVIEW.md",
       "filename": "TSCIRCUIT_REACT_PROPS_OVERVIEW.md"
     }
