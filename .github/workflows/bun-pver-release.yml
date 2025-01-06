@@ -9,6 +9,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.TSCIRCUIT_BOT_GITHUB_TOKEN }}
       - name: Setup bun
         uses: oven-sh/setup-bun@v1
         with:
@@ -19,6 +21,8 @@ jobs:
           registry-url: https://registry.npmjs.org/
       - run: npm install -g pver
       - run: bun install --frozen-lockfile
+      - run: bun run build
       - run: pver release
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.TSCIRCUIT_BOT_GITHUB_TOKEN }}
