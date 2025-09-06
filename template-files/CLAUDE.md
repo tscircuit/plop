@@ -1,0 +1,3 @@
+- use `bunx tsc --noEmit` to type check
+- use `bun test path/to/test.ts` to run a test
+- use `bun add <package>` to add a package
