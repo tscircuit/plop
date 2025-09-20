@@ -18,6 +18,9 @@ on:
       - completed
   status: {}
   workflow_dispatch:
+  repository_dispatch:
+    types:
+      - automerge-pull-request
 
 permissions:
   contents: write
