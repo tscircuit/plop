@@ -3,7 +3,7 @@
 # Add the update-tscircuit-package.yml workflow to the dependent repository, for this to work.
 # =============================================================================
 
-name: Create Automated PR
+name: Trigger Dependent Repository Update
 
 on:
   push:
