@@ -9,120 +9,38 @@ name: Update @tscircuit Package
 on:
   workflow_dispatch:
     inputs:
-      package_name:
-        description: 'Package name to update (e.g., @tscircuit/core)'
+      package_names:
+        description: 'Package names to update (comma-separated, e.g., @tscircuit/core,@tscircuit/props)'
         required: true
         type: string
-        default: '<PACKAGE_NAME>'
+        default: '<PACKAGE_NAMES>'
 
 env:
-  PACKAGE_NAME: ${{ inputs.package_name }}
-  GITHUB_TOKEN_SECRET: "TSCIRCUIT_BOT_GITHUB_TOKEN"
-  BOT_EMAIL: "bot@tscircuit.com"
-  BOT_NAME: "tscircuitbot"
+  PACKAGE_NAMES: ${{ inputs.package_names }}
 
 jobs:
   update-package:
     runs-on: ubuntu-latest
     
     steps:
-      - name: Validate package name configuration
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.TSCIRCUIT_BOT_GITHUB_TOKEN }}
+      - uses: oven-sh/setup-bun@v2
+      - name: Update packages
         run: |
-          if [ "${{ env.PACKAGE_NAME }}" = "<PACKAGE_NAME>" ] || [ -z "${{ env.PACKAGE_NAME }}" ]; then
-            echo "❌ ERROR: PACKAGE_NAME is not configured properly!"
-            echo "❌ Current value: '${{ env.PACKAGE_NAME }}'"
-            echo "❌ Please set a valid package name (e.g., '@tscircuit/core')"
-            echo "❌ Either:"
-            echo "   1. Configure the default value in this workflow file, or"
-            echo "   2. Pass it as input when triggering manually"
-            exit 1
-          fi
-          echo "✅ Package name validated: ${{ env.PACKAGE_NAME }}"
-      
-      - name: Checkout code
-        uses: actions/checkout@v4
-        
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
-        
-      - name: Close existing PRs
-        run: |
-          echo "🔍 Checking for existing update PRs..."
-          gh pr list --repo ${{ github.repository }} --state open --json number,title --jq '.[] | select(.title | contains("update ${{ env.PACKAGE_NAME }}")) | .number' | xargs -I{} gh pr close {} --comment "Closing in favor of a new update PR"
-        env:
-          GH_TOKEN: ${{ secrets[env.GITHUB_TOKEN_SECRET] }}
-        
-      - name: Update package
-        run: |
-          echo "📦 Updating ${{ env.PACKAGE_NAME }} to latest version..."
-          bun update --latest ${{ env.PACKAGE_NAME }}
-        
-      - name: Copy core dependencies (if script exists)
-        run: |
-          if [ -f "scripts/copy-core-versions.ts" ]; then
-            echo "🔄 Running copy-core-versions script..."
-            bun scripts/copy-core-versions.ts
-          else
-            echo "ℹ️ No copy-core-versions script found, skipping..."
-          fi
-        
-      - name: Get new version
-        id: get-version
-        run: |
-          if [ -f "package.json" ]; then
-            # Try to get version from devDependencies first, then dependencies
-            NEW_VERSION=$(node -e "
-              const pkg = require('./package.json');
-              const version = (pkg.devDependencies && pkg.devDependencies['${{ env.PACKAGE_NAME }}']) || 
-                             (pkg.dependencies && pkg.dependencies['${{ env.PACKAGE_NAME }}']) || 
-                             'unknown';
-              console.log(version.replace(/^\^/, ''));
-            ")
-            echo "new_version=${NEW_VERSION}" >> $GITHUB_OUTPUT
-            echo "📋 New version: ${NEW_VERSION}"
-          else
-            echo "❌ package.json not found"
-            exit 1
-          fi
-        
-      - name: Check for changes
-        id: git-check
-        run: |
-          if git diff --exit-code; then
-            echo "📋 No changes detected"
-          else
-            echo "📋 Changes detected"
-            echo "changes=true" >> $GITHUB_OUTPUT
-          fi
-          
+          IFS=',' read -ra PACKAGES <<< "${{ env.PACKAGE_NAMES }}"
+          for package in "${PACKAGES[@]}"; do
+            bun update --latest "$package"
+          done
       - name: Create Pull Request
-        if: steps.git-check.outputs.changes == 'true'
         uses: peter-evans/create-pull-request@v5
         with:
-          commit-message: "chore: update ${{ env.PACKAGE_NAME }} to v${{ steps.get-version.outputs.new_version }}"
-          title: "chore: update ${{ env.PACKAGE_NAME }} to v${{ steps.get-version.outputs.new_version }}"
-          body: |
-            Automated update of ${{ env.PACKAGE_NAME }} to v${{ steps.get-version.outputs.new_version }}.
-            
-            This PR was created automatically by the update-tscircuit-package GitHub workflow.
-            
-            ## Changes
-            - 📦 Updated ${{ env.PACKAGE_NAME }} to latest version
-            - 🔄 Synchronized dependency versions (if applicable)
-            
-            ## Review Notes
-            - Please review the changelog for breaking changes
-            - Test thoroughly before merging
-          branch: update-${{ env.PACKAGE_NAME }}-package
+          commit-message: "chore: update packages ${{ env.PACKAGE_NAMES }}"
+          title: "chore: update packages ${{ env.PACKAGE_NAMES }}"
+          body: "Automated package update"
+          branch: update-packages-${{ github.run_number }}
           base: main
-          token: ${{ secrets[env.GITHUB_TOKEN_SECRET] }}
-          committer: ${{ env.BOT_NAME }} <${{ env.BOT_EMAIL }}>
-          author: ${{ env.BOT_NAME }} <${{ env.BOT_EMAIL }}>
-          
-      - name: Summary
-        run: |
-          if [ "${{ steps.git-check.outputs.changes }}" == "true" ]; then
-            echo "✅ Successfully created PR for ${{ env.PACKAGE_NAME }} update to v${{ steps.get-version.outputs.new_version }}"
-          else
-            echo "ℹ️ No changes needed - ${{ env.PACKAGE_NAME }} is already up to date"
-          fi
+          token: ${{ secrets.TSCIRCUIT_BOT_GITHUB_TOKEN }}
+          committer: tscircuitbot <githubbot@tscircuit.com>
+          author: tscircuitbot <githubbot@tscircuit.com>

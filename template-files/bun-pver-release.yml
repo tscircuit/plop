@@ -4,6 +4,12 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
+
+env:
+  # UPSTREAM_REPO: "<UPSTREAM_REPO_NAME>" # for example: "eval"
+  # PACKAGE_NAMES: "<PACKAGE_NAME_1>,<PACKAGE_NAME_2>" # comma-separated list, e.g. "@tscircuit/core,@tscircuit/props"
+
 jobs:
   publish:
     runs-on: ubuntu-latest
@@ -26,3 +32,14 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.TSCIRCUIT_BOT_GITHUB_TOKEN }}
+      # - name: Trigger upstream repo update
+      #   if: env.UPSTREAM_REPO && env.PACKAGE_NAMES
+      #   run: |
+      #     IFS=',' read -ra PACKAGES <<< "${{ env.PACKAGE_NAMES }}"
+      #     PACKAGE_JSON_ARRAY=$(printf '%s\n' "${PACKAGES[@]}" | jq -R . | jq -s .)
+      #     curl -X POST \
+      #       -H "Accept: application/vnd.github.v3+json" \
+      #       -H "Authorization: token ${{ secrets.TSCIRCUIT_BOT_GITHUB_TOKEN }}" \
+      #       -H "Content-Type: application/json" \
+      #       "https://api.github.com/repos/tscircuit/${{ env.UPSTREAM_REPO }}/actions/workflows/update-tscircuit-package.yml/dispatches" \
+      #       -d "{\"ref\":\"main\",\"inputs\":{\"package_names\":$PACKAGE_JSON_ARRAY}}"
