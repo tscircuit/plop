@@ -31,7 +31,9 @@ jobs:
         run: |
           IFS=',' read -ra PACKAGES <<< "${{ env.PACKAGE_NAMES }}"
           for package in "${PACKAGES[@]}"; do
-            bun update --latest "$package"
+            if [[ -n "$package" ]]; then
+              bun update --latest "$package"
+            fi
           done
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v5
