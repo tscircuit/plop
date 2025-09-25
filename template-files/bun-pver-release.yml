@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 env:
-  # UPSTREAM_REPOS: "<UPSTREAM_REPO_1>,<UPSTREAM_REPO_2>,<UPSTREAM_REPO_3>" # comma-separated list, e.g. "eval,snippets,docs"
+  # UPSTREAM_REPOS: "<UPSTREAM_REPO_1>,<UPSTREAM_REPO_2>,<UPSTREAM_REPO_3>" # comma-separated list, e.g. "eval,tscircuit,docs"
   # PACKAGE_NAMES: "<PACKAGE_NAME_1>,<PACKAGE_NAME_2>" # comma-separated list, e.g. "@tscircuit/core,@tscircuit/props"
 
 jobs:
