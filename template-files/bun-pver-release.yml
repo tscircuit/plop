@@ -7,8 +7,8 @@ on:
   workflow_dispatch:
 
 env:
-  # UPSTREAM_REPOS: "<UPSTREAM_REPO_1>,<UPSTREAM_REPO_2>,<UPSTREAM_REPO_3>" # comma-separated list, e.g. "eval,tscircuit,docs"
-  # PACKAGE_NAMES: "<PACKAGE_NAME_1>,<PACKAGE_NAME_2>" # comma-separated list, e.g. "@tscircuit/core,@tscircuit/props"
+  UPSTREAM_REPOS: "" # comma-separated list, e.g. "eval,tscircuit,docs"
+  UPSTREAM_PACKAGES_TO_UPDATE: "" # comma-separated list, e.g. "@tscircuit/core,@tscircuit/protos"
 
 jobs:
   publish:
@@ -54,7 +54,7 @@ jobs:
       #     GH_TOKEN: ${{ secrets.TSCIRCUIT_BOT_GITHUB_TOKEN }}
 
       # - name: Trigger upstream repo updates
-      #   if: env.UPSTREAM_REPOS && env.PACKAGE_NAMES
+      #   if: env.UPSTREAM_REPOS && env.UPSTREAM_PACKAGES_TO_UPDATE
       #   run: |
       #     IFS=',' read -ra REPOS <<< "${{ env.UPSTREAM_REPOS }}"
       #     for repo in "${REPOS[@]}"; do
@@ -65,6 +65,6 @@ jobs:
       #           -H "Authorization: token ${{ secrets.TSCIRCUIT_BOT_GITHUB_TOKEN }}" \
       #           -H "Content-Type: application/json" \
       #           "https://api.github.com/repos/tscircuit/$repo/actions/workflows/update-package.yml/dispatches" \
-      #           -d "{\"ref\":\"main\",\"inputs\":{\"package_names\":\"${{ env.PACKAGE_NAMES }}\"}}"
+      #           -d "{\"ref\":\"main\",\"inputs\":{\"package_names\":\"${{ env.UPSTREAM_PACKAGES_TO_UPDATE }}\"}}"
       #       fi
       #     done
