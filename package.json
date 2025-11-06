@@ -1,6 +1,6 @@
 {
   "name": "@tscircuit/plop",
-  "version": "0.0.67",
+  "version": "0.0.68",
   "main": "index.js",
   "bin": {
     "tscircuit-plop": "./index.js",
