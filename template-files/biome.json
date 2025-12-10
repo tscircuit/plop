@@ -30,6 +30,9 @@
         "noForEach": "error",
         "useLiteralKeys": "off"
       },
+      "correctness": {
+        "useExhaustiveDependencies": "off"
+      },
       "a11y": {
         "noAccessKey": "off",
         "noAriaHiddenOnFocusable": "off",
