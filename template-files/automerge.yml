@@ -1,0 +1,43 @@
+# Created using @tscircuit/plop (npm install -g @tscircuit/plop)
+name: Automerge
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - ready_for_review
+      - synchronize
+      - labeled
+      - unlabeled
+  pull_request_review:
+    types:
+      - submitted
+  check_suite:
+    types:
+      - completed
+  status: {}
+  workflow_dispatch:
+  repository_dispatch:
+    types:
+      - automerge-pull-request
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  automerge:
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - name: Merge pull requests
+        uses: pascalgn/automerge-action@v0.16.3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MERGE_LABELS: automerge
+          MERGE_REMOVE_LABELS: automerge
+          MERGE_METHOD: squash
+          MERGE_DELETE_BRANCH: "true"
+          MERGE_COMMIT_MESSAGE: pull-request-title
+          UPDATE_LABELS: automerge
