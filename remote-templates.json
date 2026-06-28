@@ -15,6 +15,10 @@
     {
       "url": "https://raw.githubusercontent.com/tscircuit/props/refs/heads/main/generated/PROPS_OVERVIEW.md",
       "filename": "TSCIRCUIT_REACT_PROPS_OVERVIEW.md"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/tscircuit/handbook/refs/heads/main/guides/code.md",
+      "filename": "CODE_GUIDELINES.md"
     }
   ]
 }
