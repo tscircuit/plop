@@ -6,6 +6,10 @@
     "tscircuit-plop": "./index.js",
     "plop": "./index.js"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tscircuit/plop"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
