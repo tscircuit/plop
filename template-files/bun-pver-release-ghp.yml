@@ -11,11 +11,14 @@ on:
 permissions:
   contents: write
   packages: write
-  pull-requests: write
 
 env:
   UPSTREAM_REPOS: "" # comma-separated list, e.g. "eval,tscircuit,docs"
   UPSTREAM_PACKAGES_TO_UPDATE: "" # comma-separated list, e.g. "@tscircuit/core,@tscircuit/protos"
+
+concurrency:
+  group: publish
+  cancel-in-progress: false
 
 jobs:
   publish:
@@ -40,37 +43,13 @@ jobs:
       - run: bun install --frozen-lockfile
       - run: bun run build
 
+      # pver commits the released version and pushes it back to main.
+      # GITHUB_TOKEN pushes do not trigger another release workflow.
       - name: Publish package
-        run: pver release --no-push-main
+        run: pver release
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Get package version
-        id: package-version
-        run: |
-          VERSION=$(node -p "require('./package.json').version")
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-
-      - name: Create Pull Request
-        id: create-pr
-        uses: peter-evans/create-pull-request@v6
-        with:
-          commit-message: "chore: bump version"
-          title: "chore: bump version to v${{ steps.package-version.outputs.version }}"
-          body: "Automated package update"
-          branch: version-bumps/v${{ steps.package-version.outputs.version }}
-          base: main
-          token: ${{ secrets.TSCIRCUIT_BOT_GITHUB_TOKEN }}
-          committer: tscircuitbot <githubbot@tscircuit.com>
-          author: tscircuitbot <githubbot@tscircuit.com>
-
-      - name: Enable auto-merge
-        if: steps.create-pr.outputs.pull-request-number != ''
-        run: |
-          gh pr merge ${{ steps.create-pr.outputs.pull-request-number }} --auto --squash --delete-branch
-        env:
-          GH_TOKEN: ${{ secrets.TSCIRCUIT_BOT_GITHUB_TOKEN }}
 
       - name: Trigger upstream repo updates
         if: env.UPSTREAM_REPOS && env.UPSTREAM_PACKAGES_TO_UPDATE
