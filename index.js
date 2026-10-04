@@ -51,6 +51,9 @@ async function copyFile(template) {
   try {
     if (template.isRemote) {
       const response = await fetch(template.url);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status} while downloading ${template.filename}`);
+      }
       const content = await response.text();
       await fs.writeFile(destinationPath, content);
       console.log(`Remote file "${template.filename}" downloaded successfully to the current directory.`);
@@ -61,6 +64,7 @@ async function copyFile(template) {
     }
   } catch (error) {
     console.error('Error copying/downloading file:', error.message);
+    process.exitCode = 1;
   }
 }
 
