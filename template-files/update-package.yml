@@ -21,6 +21,7 @@ env:
 jobs:
   update-package:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     
     steps:
       - uses: actions/checkout@v4
@@ -28,13 +29,25 @@ jobs:
           token: ${{ secrets.TSCIRCUIT_BOT_GITHUB_TOKEN }}
       - uses: oven-sh/setup-bun@v2
       - name: Update packages
+        env:
+          UPDATE_SUMMARY_PATH: ${{ runner.temp }}/package-update-summary.md
         run: |
-          IFS=',' read -ra PACKAGES <<< "${{ env.PACKAGE_NAMES }}"
-          for package in "${PACKAGES[@]}"; do
-            if [[ -n "$package" ]]; then
-              bun update --latest "$package"
-            fi
-          done
+          if [[ -f scripts/update-packages.ts ]]; then
+            bun run scripts/update-packages.ts
+            bun test
+            bunx tsc --noEmit
+            bun run build
+          else
+            IFS=',' read -ra PACKAGES <<< "$PACKAGE_NAMES"
+            for package in "${PACKAGES[@]}"; do
+              if [[ -n "$package" ]]; then
+                bun update --latest "$package"
+              fi
+            done
+          fi
+          if [[ ! -f "$UPDATE_SUMMARY_PATH" ]]; then
+            echo "Automated package update" > "$UPDATE_SUMMARY_PATH"
+          fi
       - name: Close existing PRs
         run: |
           gh pr list --repo ${{ github.repository }} --state open --author "tscircuitbot" --json number,title --jq '.[] | select(.title | startswith("chore:")) | .number' | xargs -I{} gh pr close {} --comment "Closing in favor of a new update PR"
@@ -44,7 +57,7 @@ jobs:
         with:
           commit-message: "chore: update packages ${{ env.PACKAGE_NAMES }}"
           title: "chore: update packages ${{ env.PACKAGE_NAMES }}"
-          body: "Automated package update"
+          body-path: ${{ runner.temp }}/package-update-summary.md
           branch: update-packages-${{ github.run_number }}
           base: main
           token: ${{ secrets.TSCIRCUIT_BOT_GITHUB_TOKEN }}
