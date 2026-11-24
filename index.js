@@ -51,6 +51,9 @@ async function copyFile(template) {
   try {
     if (template.isRemote) {
       const response = await fetch(template.url);
+      if (!response.ok) {
+        throw new Error(`Failed to download "${template.filename}" from ${template.url}: HTTP ${response.status}`);
+      }
       const content = await response.text();
       await fs.writeFile(destinationPath, content);
       console.log(`Remote file "${template.filename}" downloaded successfully to the current directory.`);
@@ -111,4 +114,8 @@ async function main() {
   }
 }
 
-main();
+if (require.main === module) {
+  main();
+}
+
+module.exports = { copyFile, getTemplateFiles };
